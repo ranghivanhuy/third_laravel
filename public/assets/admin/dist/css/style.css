@@ -1,0 +1,18 @@
+ul:first-child{
+    padding-left: 0px !important;
+}
+li {
+    list-style: none;
+}
+label.product-image {
+    border: 0.5px solid;
+    padding: 5px;
+    border-color: #d2d6de;
+    padding-left: 6px;
+    margin-left: 50px;
+    background-color: azure;
+    border-radius: 5px;
+}
+button.btn.btn-primary {
+    float: right;
+}

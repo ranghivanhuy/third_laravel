@@ -50,6 +50,7 @@ class ProductRepository extends EloquentRepository
      */
     public function getProductById($id)
     {
+
         return $this->model->with(['product_category', 'product_image'])->where('id', $id)->first();
     }
     /**

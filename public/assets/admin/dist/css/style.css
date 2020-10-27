@@ -8,11 +8,40 @@ label.product-image {
     border: 0.5px solid;
     padding: 5px;
     border-color: #d2d6de;
-    padding-left: 6px;
-    margin-left: 50px;
     background-color: azure;
     border-radius: 5px;
 }
 button.btn.btn-primary {
     float: right;
+}
+.uploadimage {
+    position: relative;
+    width: 150px;
+    margin: 5px 5px;
+    float: left;
+}
+.image-upload {
+    width: 150px;
+    height: 150px;
+}
+.upload-image-primary {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 25px;
+    height: 25px;
+    z-index: 3;
+}
+div#primary-image-to-upload {
+    position: relative;
+    width: 150px;
+    margin: 5px 0px;
+}
+button.delete-image-primary {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+.error {
+    color: red;
 }

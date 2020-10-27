@@ -39,41 +39,46 @@
                             placeholder="Enter price's product" value="{{$prodById['price']}}">
                     </div>
                     <div class="form-group">
-                        <label>Product Image</label>
-                        <div class="photo-add">
-                            <label for="photo" class="product-image"> Upload
-                                <input type="file" name="photo" id="photo" class="form-control" style="display:none"/>
-                            </label>
-                            <div class="photo-preview">
-                                <img id="photoPreview" src="{{asset('storage/products/thumbnail/'. $prodById->photo)}}" width="150px" height="150px" alt="">
+                        <label for="primary-image" class="col-sm-2 control-label">Product photo</label>
+                        <div class="col-sm-10">
+                            <div class="image-add">
+                                <label for="primary-image" class="product-image">Upload primary
+                                    <input type="file" name="photo" id="primary-image"  class="form-control" style="display: none"/>
+                                </label>
                             </div>
-                        </div>
+                            <div id="primary-image-to-upload">
+                                <div id="display-primary-image">
+                                    <img id="photoPreview" src="{{asset('storage/products/thumbnail/'. $prodById->photo)}}" alt="">
+                                    <button type="button" class="delete-image-primary">X</button>
+                                </div>
+                            </div>
+                        </div> 
                     </div>
                     <div class="form-group">
-                        <label>Image Detail</label>
-                        <div class="image-add">
-                            <label for="image" class="product-image">Upload detail
-                                <input type="file" name="image[]" id="image"  class="form-control" multiple="multiple" style="display: none"/>
-                            </label>
-                            <output id="filesInfo"></output>
-                            <img src="{{asset('storage/products/images/thumbnail/'. $prodById)}}" alt="">
-                        </div>
+                        <label for="multiple-image-multiple" class="col-sm-2 control-label">Image Detail</label>
+                        <div class="col-sm-10">
+                            <div class="image-add">
+                                <label for="multiple-image" class="product-image">Upload multiple
+                                    <input type="file" name="image[]" id="multiple-image"  class="form-control" multiple style="display: none"/>
+                                </label>
+                            </div>
+                            <div id="multiple-image-to-upload"></div>
+                        </div> 
                     </div>
                     <div class="form-group">
                         <label>Category Name</label>
                         <div class="checkbox">
                             <ul>
-                    	    @foreach ($categories as $checked)
+                    	    @foreach ($categories as $value)
                     	        <li>
                                     <label>
-                                    <input type="checkbox" name="category_id[]"  value="{{ $checked->id }}" @foreach ($checked->product_category as $value)
-                                @if(in_array($value['id'], $checked)) 'checked="checked"' @endif
-                           @endforeach />
-                                    {{ $checked->name }}
+                                    <input type="checkbox" name="category_id[]"  value="{{ $value->id }}" {{in_array($value->id, $productCategory) ? "checked":"" }}>
+                            
+                                    {{ $value->name }}
                                     </label>
                                 </li>
                     	        <ul>
-                    	        @foreach ($checked->cate as $cate_first)
+                    	        @foreach ($value->cate as $cate_first)
                     	            @include('products.child_cate', ['child_cate' => $cate_first])
                     	        @endforeach
                     	        </ul>

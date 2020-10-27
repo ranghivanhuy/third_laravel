@@ -1,9 +1,6 @@
 <li>
     <label>
-        <input type="checkbox" name="category_id[]" value="{{ $cate_first->parent_id }}"  @foreach ($checked as $check => $hitsValue)
-        @foreach ($checked->product_category as $value)
-            @if(in_array($value['id'], $checked)) 'checked="checked"' @endif
-        @endforeach />
+        <input type="checkbox" name="category_id[]" value="{{ $cate_first->id }}"  {{in_array($value->id, $productCategory) ? "checked":"" }} />
         {{ $cate_first->name }}
     </label>
 </li>

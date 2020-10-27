@@ -18,6 +18,8 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Products\ProductRepository::class,
             \App\Repositories\Categories\CategoryRepositoryInterface::class,
             \App\Repositories\Categories\CategoryRepository::class,
+            \App\Repositories\Products\ProductCategoryRepository::class,
+            \App\Repositories\Products\ProductCategoryRepositoryInterface::class,
         );
     }
 

@@ -13,7 +13,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Repositories\Categories\CategoryRepository;
-use App\Http\Requests\Categories\AddRequest;
+use App\Http\Requests\Categories\AddCategoryRequest;
 /**
  * Namespace App\Http\Controllers
  * 
@@ -81,7 +81,7 @@ class CategoryController extends Controller
      * 
      * @return Response
      */
-    public function store(AddRequest $request)
+    public function store(AddCategoryRequest $request)
     {
         
         $data = $request->all();

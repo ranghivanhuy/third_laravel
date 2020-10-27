@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Products;
+namespace App\Http\Requests\Categories;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class AddRequest extends FormRequest
+class AddCategoryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,10 +24,8 @@ class AddRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required',
-            'price' => 'required',
-            'image' => 'required | mimes:jpeg,jpg,png,svg',
-            'description' => 'required'
+            'name' => 'required | max:50',
+            'description' => 'required',
         ];
     }
     /**
@@ -39,9 +37,6 @@ class AddRequest extends FormRequest
     {
         return [
             'name.required' => 'Name cannot be blank',
-            'price.required' => 'Price cannot be blank',
-            'image.required' => 'Image cannot be blank',
-            'image.mines' => 'Image is invalid format',
             'description.required' => 'Description cannot be blank'
         ];
     }

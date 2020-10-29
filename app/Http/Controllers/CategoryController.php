@@ -111,7 +111,7 @@ class CategoryController extends Controller
      * 
      * @return Response
      */
-    public function update(Request $request, $id)
+    public function update(AddCategoryRequest $request, $id)
     {
         $data = $request->all();
 

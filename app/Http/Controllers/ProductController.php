@@ -16,6 +16,7 @@ use App\Repositories\Products\ProductRepositoryInterface;
 use App\Repositories\Categories\CategoryRepository;
 use App\Repositories\Products\ProductCategoryRepository;
 use App\Http\Requests\Products\AddProductRequest;
+use App\Http\Requests\Products\UpdateProductRequest;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductImage;
@@ -155,7 +156,7 @@ class ProductController extends Controller
      * 
      * @return Response
      */
-    public function update(Request $request, $id)
+    public function update(UpdateProductRequest $request, $id)
     {
         
         $product = Product::find($id);
@@ -195,7 +196,6 @@ class ProductController extends Controller
             }
             $images[] = $request->file('image');
             foreach ($images[0] as $image) {
-
                 $filename = $image->getInode() . $image->getClientOriginalName();
                 $resize = Image::make($image->getRealPath());
                 $resize->fit(150, 150)->save(storage_path('app/public/products/images/thumbnail/'. $filename));
@@ -206,10 +206,13 @@ class ProductController extends Controller
             }
         }
         
-        
+        return response()->json([
+            'product' => $product,
+            'productCategory' => $productCategory
+        ]);
 
             
-        return redirect()->route('products.index');
+        // return redirect()->route('products.index');
     }
     /**
      * Create destroy function to delete single product
@@ -220,7 +223,43 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        $this->productRepo->delete($id);
-        return view('home.products');
+        // $this->productRepo->delete($id);
+        $productCategory = ProductCategory::where('product_id', $id)->delete();
+        $productImage = ProductImage::where('product_id', $id)->delete();
+        $product = Product::find($id)->delete();
+        return redirect()->route('products.index');
+    }
+    /**
+     * Create delete function to delete single image from product image table
+     * 
+     * @param int $id 
+     * 
+     * @return response
+     */
+    public function deleteProductImage($id)
+    {
+        $productImage = ProductImage::find($id);
+        File::delete(storage_path('app/public/products/images/thumbnail/'. $productImage->image));
+        File::delete(storage_path('app/public/products/images/medium/'. $productImage->image));
+        File::delete(storage_path('app/public/products/images/large/'. $productImage->image));
+        $productImage->delete();
+        return 'ok';
+    }
+    /**
+     * Create delete function to delete single image from product image table
+     * 
+     * @param int $id 
+     * 
+     * @return response
+     */
+    public function deleteOnlyImage($id)
+    {
+        // $product = Product::where('id', $id)->where('photo', 'like', '%dd%')->first();
+        $product = Product::where('id', $id)->where('photo', 'like', '%%')->first();
+        File::delete(storage_path('app/public/products/thumbnail/'. $product->photo));
+        File::delete(storage_path('app/public/products/thumbnail/'. $product->photo));
+        File::delete(storage_path('app/public/products/thumbnail/'. $product->photo));
+        $product->update(['photo' => null]);
+        return 'ok';
     }
 }

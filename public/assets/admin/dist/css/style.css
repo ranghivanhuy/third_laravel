@@ -11,7 +11,10 @@ label.product-image {
     background-color: azure;
     border-radius: 5px;
 }
-button.btn.btn-primary {
+button.btn.btn-success {
+    float: right;
+}
+button.btn.btn-warning {
     float: right;
 }
 .uploadimage {
@@ -44,4 +47,18 @@ button.delete-image-primary {
 }
 .error {
     color: red;
+}
+div.display-multiple-image {
+    float: left;
+    position: relative;
+    width: 150px;
+    margin: 0px 5px;
+}
+button.delete-image-multiple {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+form.delete-product {
+    display: contents;
 }

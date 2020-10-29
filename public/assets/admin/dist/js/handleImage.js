@@ -1,6 +1,23 @@
 $(document).ready(function() {
     $('.delete-image-primary').click(function () {
-        $(this).parent('#display-primary-image').remove();
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
+            }
+        });
+        var id = $(this).attr('data-id');
+        console.log(id);
+        $.ajax({
+            url: '/products/prodDelete/' + id,
+            method: 'DELETE',
+            data: '',
+            success: function(data)
+            {
+                // location.reload();
+            }
+        });
+        $(this).parent('#primary-image-to-upload').remove();
+        $("#display-primary-image").val('');
     });
     $('#primary-image').on('change', function(e) {
         $('#primary-image-to-upload').html('');
@@ -17,8 +34,26 @@ $(document).ready(function() {
                     $('#primary-image-to-upload').append(template);
                     $('.upload-image-primary').click(function () {
                         $(this).parent('.uploadimage').remove();
-                        $("#primary-image").val(''); 
+                        $("#primary-image").val('');
                     });
+            }
+        });
+    });
+
+    $('.delete-image-multiple').click(function(){
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
+            }
+        })
+        var id = $(this).attr('data-id');
+        $.ajax({
+            url: '/products/delete/' + id,
+            method: 'DELETE',
+            data: '',
+            success: function(data)
+            {
+                location.reload();
             }
         });
     });
@@ -36,9 +71,9 @@ $(document).ready(function() {
                     $('#multiple-image-to-upload').append(templateMuliple);
                     $('.upload-image-primary').click(function () {
                         $(this).parent('.uploadimage').remove();
+                        $("#multiple-image").val('');
                     });
             }
-            $('#multiple-image-to-upload').html('');
         });
     });
 });

@@ -30,6 +30,9 @@
                         <label for="name">Category Name</label>
                         <input type="text" class="form-control" name="name" id="name" placeholder="Enter your category name"
                             value="{{$cateById->name}}">
+                            @error('name')
+                            <div class="error">{{$message}}</div>
+                            @enderror
                     </div>
                     <div class="form-group">
                         <label for="parent_id">Parent ID</label>
@@ -56,11 +59,14 @@
                         <label for="editor1">Description</label>
                         <textarea name="description" class="form-control ckeditor" id="editor1" rows="10"
                             placeholder="Enter Description">{{ $cateById->description }}</textarea>
+                            @error('description')
+                            <div class="error">{{$message}}</div>
+                            @enderror
                     </div>
                 </div>
                 <!-- /.box-body -->
                 <div class="box-footer">
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="submit" class="btn btn-warning">Update</button>
                 </div>
             </form>
         </div>

@@ -39,7 +39,11 @@ Route::group(['prefix' => 'products'], function () {
     Route::put('/edit/{id}', [ProductController::class, 'update'])
         ->name('products.update');
     Route::delete('/destroy', [ProductController::class, 'destroy'])
-        ->name('products.destroy');
+        ->name('products.destroy'); // Destroy single product
+    Route::delete('/delete/{id}', [ProductController::class, 'deleteProductImage'])
+        ->name('products.delete'); // Delete image from product image
+    Route::delete('/prodDelete/{id}', [ProductController::class, 'deleteOnlyImage'])
+        ->name('products.prodDelete'); // Delete image from product image
 });
 
 Route::group(['prefix' => 'categories'], function () {

@@ -27,6 +27,7 @@
         href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
     <meta name="_token" content="{!! csrf_token() !!}" />
     <link rel="stylesheet" href="{{asset('assets/admin/dist/css/style.css')}}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 </head>
 
 <body class="hold-transition skin-blue sidebar-mini">
@@ -143,6 +144,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="{{asset('assets/admin/dist/js/handleDeleteCate.js')}}"></script>
     <script src="{{asset('assets/admin/dist/js/handleImage.js')}}"></script>
+    <script src="{{asset('assets/admin/dist/js/edit-product.js')}}"></script>
     <script src="{{asset('assets/admin/dist/js/bower_components/jquery/dist/jquery.min.js')}}"></script>
     <!-- Bootstrap 3.3.7 -->
     <script src="{{asset('assets/admin/dist/js/bower_components/bootstrap/dist/js/bootstrap.min.js')}}"></script>

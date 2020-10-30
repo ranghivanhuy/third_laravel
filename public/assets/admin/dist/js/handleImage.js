@@ -6,18 +6,15 @@ $(document).ready(function() {
             }
         });
         var id = $(this).attr('data-id');
-        console.log(id);
         $.ajax({
             url: '/products/prodDelete/' + id,
             method: 'DELETE',
             data: '',
             success: function(data)
             {
-                // location.reload();
+                $('#display-primary-image').remove();
             }
         });
-        $(this).parent('#primary-image-to-upload').remove();
-        $("#display-primary-image").val('');
     });
     $('#primary-image').on('change', function(e) {
         $('#primary-image-to-upload').html('');
@@ -28,7 +25,7 @@ $(document).ready(function() {
             reader.onload = function(e) {
                 var template = '<div class="uploadimage" id="img-0">';
                     template += '<img class="image-upload" src="' + e.target.result + '">';
-                    template += '<input name="photo" id="file-input" type="hidden" value="' + e.target.result + '">';
+                    template += '<input name="primary" id="file-input" type="hidden" value="' + e.target.result + '">';
                     template += '<button type="button" class="upload-image-primary">X</button>';
                     template += '</div>';
                     $('#primary-image-to-upload').append(template);
@@ -53,7 +50,7 @@ $(document).ready(function() {
             data: '',
             success: function(data)
             {
-                location.reload();
+                $("#img-"+id).remove();
             }
         });
     });
@@ -65,12 +62,13 @@ $(document).ready(function() {
             reader.onload = function(e) {
                 var templateMuliple = '<div class="uploadimage" id="img-0">';
                     templateMuliple += '<img class="image-upload" src="' + e.target.result + '">';
-                    templateMuliple += '<input name="image[]" type="hidden" value="' + e.target.result + '">';
+                    templateMuliple += '<input name="other-image[]" type="hidden" value="' + e.target.result + '">';
                     templateMuliple += '<button type="button" class="upload-image-primary">X</button>';
                     templateMuliple += '</div>';
                     $('#multiple-image-to-upload').append(templateMuliple);
                     $('.upload-image-primary').click(function () {
                         $(this).parent('.uploadimage').remove();
+                        
                         $("#multiple-image").val('');
                     });
             }

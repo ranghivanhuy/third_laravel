@@ -11,6 +11,7 @@
 namespace App\Repositories\Products;
 
 use App\Repositories\EloquentRepository;
+use File;
 /**
  * CandidateRepository Class
  *
@@ -39,7 +40,7 @@ class ProductRepository extends EloquentRepository
      */
     public function getProduct()
     {
-        return $this->model->with('product_category')->get();
+        return $this->model->with('product_category')->orderBy('created_at', 'ASC')->paginate(5);
     }
     /**
      * Get model
@@ -54,16 +55,48 @@ class ProductRepository extends EloquentRepository
         return $this->model->with(['product_category', 'product_image'])->where('id', $id)->first();
     }
     /**
-     * Get paginate from products table
+     * Get model
      * 
-     * @param int $filters 
+     * @param int $id 
      * 
      * @return void
      */
-    public function index($filters)
+    public function deleteProductById($id)
     {
-        $pagination = $filters['pagination'];
-
-        return $this->model->with('product_category')->orderBy('created_at', 'ASC')->paginate($pagination);
+        return $this->model->find($id);
+    }
+    /**
+     * Delete photo in product
+     * 
+     * @param int $id 
+     * 
+     * @return Response
+     */
+    public function deleteProductPhoto($id)
+    {
+        $product = $this->model->where('id', $id)->where('photo', 'like', '%%')->first();
+        File::delete(storage_path('app/public/product_images/thumbnail/'. $product->photo));
+        File::delete(storage_path('app/public/product_images/medium/'. $product->photo));
+        File::delete(storage_path('app/public/product_images/large/'. $product->photo));
+        File::delete(storage_path('app/public/uploads/'. $product->photo));
+        $product->update(['photo' => null]);
+        return $product;
+    }
+    /**
+     * Delete single product
+     * 
+     * @param int $id 
+     * 
+     * @return Response
+     */
+    public function deleteProduct($id)
+    {
+        $product = $this->model->find($id);
+        File::delete(storage_path('app/public/product_images/thumbnail/'. $product->photo));
+        File::delete(storage_path('app/public/product_images/medium/'. $product->photo));
+        File::delete(storage_path('app/public/product_images/large/'. $product->photo));
+        File::delete(storage_path('app/public/uploads/'. $product->photo));
+        $product->delete();
+        return $product;
     }
 }

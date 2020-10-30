@@ -44,7 +44,7 @@
                         <div class="col-sm-10">
                             <div class="image-add">
                                 <label for="primary-image" class="product-image">Upload primary
-                                    <input type="file" name="photo" id="primary-image"  class="form-control" style="display: none"/>
+                                    <input type="file" id="primary-image"  class="form-control" style="display: none"/>
                                 </label>
                             </div>
                             @error('photo')
@@ -58,7 +58,7 @@
                         <div class="col-sm-10">
                             <div class="image-add">
                                 <label for="multiple-image" class="product-image">Upload multiple
-                                    <input type="file" name="image[]" id="multiple-image"  class="form-control" multiple style="display: none"/>
+                                    <input type="file" id="multiple-image"  class="form-control" multiple style="display: none"/>
                                 </label>
                             </div>
                             @error('image')

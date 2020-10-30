@@ -38,9 +38,11 @@
                         <th>Option</th>
                     </tr>
                     @foreach ($products as $key => $product)
-                    <tr>
+                    <tr id="product-{{$product->id}}">
                         <td>{{ ($products->currentpage() - 1) * $products->perpage() + ++$key }}</td>
-                        <td><img src="{{asset('/storage/products/thumbnail/'.$product->photo)}}" width="50px" alt=""></td>
+                        <td>
+                            <img src="{{asset('/storage/product_images/thumbnail/'.$product->photo)}}" width="50px" alt="">
+                        </td>
                         <td>{{ $product->name }}</td>
                         <td>{{ number_format($product->price) }}</td>
                         <td>
@@ -49,8 +51,8 @@
                             @endforeach
                         </td>
                         <td>
-                            <a href="{{ route('products.edit', $product->id) }}" class="btn btn-warning"><span class="glyphicon glyphicon-edit"></span></a>
-                            <a class="btn btn-danger open-delete-product"><span class="glyphicon glyphicon-trash"></span></a>
+                            <a href="{{ route('products.edit', $product->id) }}" class="btn btn-warning edit-product"><span class="glyphicon glyphicon-edit"></span></a>
+                            <a class="btn btn-danger open-delete-product" data-id="{{$product->id}}"><span class="glyphicon glyphicon-trash"></span></a>
                         </td>
                     </tr>
                     @endforeach
@@ -58,6 +60,27 @@
                 <div class="text-center">
                     {{$products->render('vendor.pagination.bootstrap-4')}}
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Passing BASE URL to AJAX -->
+<input id="url" type="hidden" value="{{ \Request::url() }}">
+
+<!-- MODAL SECTION -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">Notify</h4>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" id="btn-delete-product" value="delete-product" class="btn btn-danger">Yes</button>
+                <input type="hidden" id="id-delete-product" name="id" value="0">
             </div>
         </div>
     </div>

@@ -1,6 +1,6 @@
 <li>
     <label>
-        <input type="checkbox" name="category_id[]" value="{{ $cate_first->id }}"  {{in_array($value->id, $productCategory) ? "checked":"" }} />
+        <input type="checkbox" name="category_id[]" value="{{ $cate_first->id }}"  {{in_array($cate_first->id, $productCategory) ? "checked":"" }} />
         {{ $cate_first->name }}
     </label>
 </li>

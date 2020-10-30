@@ -145,6 +145,7 @@
     <script src="{{asset('assets/admin/dist/js/handleDeleteCate.js')}}"></script>
     <script src="{{asset('assets/admin/dist/js/handleImage.js')}}"></script>
     <script src="{{asset('assets/admin/dist/js/edit-product.js')}}"></script>
+    <script src="{{asset('assets/admin/dist/js/handleDelProduct.js')}}"></script>
     <script src="{{asset('assets/admin/dist/js/bower_components/jquery/dist/jquery.min.js')}}"></script>
     <!-- Bootstrap 3.3.7 -->
     <script src="{{asset('assets/admin/dist/js/bower_components/bootstrap/dist/js/bootstrap.min.js')}}"></script>

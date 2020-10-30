@@ -39,7 +39,7 @@
                     <div class="form-group">
                         <label>Price</label>
                         <input type="text" class="form-control" name="price" id="price"
-                            placeholder="Enter price's product" value="{{$prodById['price']}}">
+                            placeholder="Enter price's product" value="{{old('price', $prodById['price'])}}">
                             @error('price')
                             <div class="error">{{$message}}</div>
                             @enderror
@@ -54,7 +54,7 @@
                             </div>
                             <div id="primary-image-to-upload">
                                 <div id="display-primary-image">
-                                    <img id="photoPreview" src="{{asset('storage/products/thumbnail/'. $prodById->photo)}}" alt="">
+                                    <img id="photoPreview" src="{{asset('/storage/product_images/thumbnail/'.$prodById->photo)}}" alt="">
                                     <button type="button" data-id="{{$prodById->id}}" class="delete-image-primary">X</button>
                                 </div>
                             </div>
@@ -70,8 +70,8 @@
                             </div>
                             <div id="multiple-image-to-upload">
                                 @foreach($prodById->product_image as $productImage)
-                                <div class="display-multiple-image">
-                                    <img id="photoPreview" src="{{asset('storage/products/images/thumbnail/'. $productImage->image)}}" alt="">
+                                <div class="display-multiple-image" id="img-{{$productImage->id}}">
+                                    <img id="photoPreview"  src="{{asset('/storage/product_images/thumbnail/'.$productImage->image)}}" alt="">
                                     <button type="button" class="delete-image-multiple" data-id="{{ $productImage->id }}" value="{{$productImage->id}}">X</button>
                                 </div>
                                 @endforeach
@@ -86,13 +86,17 @@
                     	        <li>
                                     <label>
                                     <input type="checkbox" name="category_id[]"  value="{{ $value->id }}" {{in_array($value->id, $productCategory) ? "checked":"" }}>
-                            
                                     {{ $value->name }}
                                     </label>
                                 </li>
                     	        <ul>
                     	        @foreach ($value->cate as $cate_first)
                     	            @include('products.child_cate', ['child_cate' => $cate_first])
+                                    <ul>
+                                        @foreach($cate_first->cate as $cate_second)
+                                            @include('products.child_cate_second', ['child_cate_second' => $cate_second])
+                                        @endforeach
+                                    </ul>
                     	        @endforeach
                     	        </ul>
                     	    @endforeach

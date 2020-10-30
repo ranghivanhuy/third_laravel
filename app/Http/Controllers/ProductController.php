@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use App\Repositories\Products\ProductRepositoryInterface;
 use App\Repositories\Categories\CategoryRepository;
 use App\Repositories\Products\ProductCategoryRepository;
+use App\Repositories\ProductImages\ProductImageRepository;
 use App\Http\Requests\Products\AddProductRequest;
 use App\Http\Requests\Products\UpdateProductRequest;
 use App\Models\Product;
@@ -24,6 +25,7 @@ use App\Models\Category;
 use Image;
 use DB;
 use File;
+use Storage;
 /**
  * Name ProductConrtoller
  * 
@@ -43,17 +45,21 @@ class ProductController extends Controller
     protected $productRepo;
     protected $categoryRepo;
     protected $prodCateRepo;
+    protected $prodImageRepo;
     /**
      * ProductRepositoryInterface
      * 
      * @param $productRepo 
      * @param $categoryRepo 
+     * @param $prodCateRepo 
+     * @param $prodImageRepo 
      */
-    public function __construct(ProductRepositoryInterface $productRepo, CategoryRepository $categoryRepo, ProductCategoryRepository $prodCateRepo)
+    public function __construct(ProductRepositoryInterface $productRepo, CategoryRepository $categoryRepo, ProductCategoryRepository $prodCateRepo, ProductImageRepository $prodImageRepo)
     {
         $this->productRepo = $productRepo;
         $this->categoryRepo = $categoryRepo;
         $this->prodCateRepo = $prodCateRepo;
+        $this->prodImageRepo = $prodImageRepo;
     }
     /**
      * Display all data from Product
@@ -62,8 +68,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $filters = ['pagination' => 5];
-        $products = $this->productRepo->index($filters);
+        $products = $this->productRepo->getProduct();
         return view('products.list-product', ['products' => $products]);
     }
     /**
@@ -76,7 +81,10 @@ class ProductController extends Controller
     public function show($id)
     {
         $product = $this->productRepo->find($id);
-
+        
+        $prodById = $this->productRepo->getProductById($id);
+        $productCategory = $this->prodCateRepo->getProductCategory($id);
+        $categories = $this->categoryRepo->getCategory();
         return view('home.product', ['product' => $product]);
     }
     /**
@@ -97,38 +105,27 @@ class ProductController extends Controller
      * 
      * @return Response
      */
-    public function store(AddProductRequest $request)
+    public function store(Request $request)
     {
+        // dd($request->all());
         $productData = $request->only('name', 'price', 'description', 'category_id');
-        if ($request->hasFile('photo')) {
-            $file =  $request->photo;
-            $filename = $file->getClientOriginalName();
-            $photo = microtime(). '-'. $filename;
-            $resize = Image::make($file->getRealPath());
-            $resize->fit(150, 150)->save(storage_path('app/public/products/thumbnail/'. $photo));
-            $resize->fit(400, 400)->save(storage_path('app/public/products/medium/'. $photo));
-            $resize->fit(600, 600)->save(storage_path('app/public/products/large/'. $photo));
-            $productData['photo'] = $photo;
+        $primary = $request->get('primary');
+        if ($primary) {
+            $productData['photo'] = $this->saveImgBase64($primary, 'uploads');
         }
         $product['product_id'] = $this->productRepo->create($productData)->id;
-        
         $productCategories['product_id'] = $product['product_id'];
         $prodCate = $request->category_id;
         for ($i = 0; $i < count($prodCate); $i++) {
             $productCategories['category_id'] = $prodCate[$i];
-            $productCategory = ProductCategory::create($productCategories);
+            $productCategory = $this->prodCateRepo->create($productCategories);
         }
         $input['product_id'] = $product['product_id'];
-        if ($request->hasFile('image')) {
-            $images[] = $request->file('image');
-            foreach ($images[0] as $image) {
-                $filename = $image->getInode() . $image->getClientOriginalName();
-                $resize = Image::make($image->getRealPath());
-                $resize->fit(150, 150)->save(storage_path('app/public/products/images/thumbnail/'. $filename));
-                $resize->fit(400, 400)->save(storage_path('app/public/products/images/medium/'. $filename));
-                $resize->fit(600, 600)->save(storage_path('app/public/products/images/large/'. $filename));
-                $input['image'] = $filename;
-                ProductImage::create($input);
+        if ($request->get('other-image')) {
+            $images = $request->get('other-image');
+            foreach ($images as $image) {
+                $input['image'] =  $this->saveImgBase64($image, 'uploads/other-image');;
+                $this->prodImageRepo->create($input);
             }
         }
 
@@ -159,63 +156,43 @@ class ProductController extends Controller
     public function update(UpdateProductRequest $request, $id)
     {
         
-        $product = Product::find($id);
+        $product = $this->productRepo->find($id);
         $product->name = $request->get('name');
         $product->price = $request->get('price');
         $product->description = $request->get('description');
-        if ($request->hasFile('photo')) {
-                File::delete(storage_path('app/public/products/thumbnail/'. $product->photo));
-                File::delete(storage_path('app/public/products/medium/'. $product->photo));
-                File::delete(storage_path('app/public/products/large/'. $product->photo));
-            $file =  $request->photo;
-            $filename = $file->getClientOriginalName();
-            $photo = microtime(). '-'. $filename;
-            $resize = Image::make($file->getRealPath());
-            $resize->fit(150, 150)->save(storage_path('app/public/products/thumbnail/'. $photo));
-            $resize->fit(400, 400)->save(storage_path('app/public/products/medium/'. $photo));
-            $resize->fit(600, 600)->save(storage_path('app/public/products/large/'. $photo));
-            $product->photo = $photo;
+        if ($request->get('primary')) {
+            File::delete(storage_path('app/public/product_images/thumbnail/'. $product->photo));
+            File::delete(storage_path('app/public/product_images/medium/'. $product->photo));
+            File::delete(storage_path('app/public/product_images/large/'. $product->photo));
+            File::delete(storage_path('app/public/uploads/'. $product->photo));
+            $primary = $request->get('primary');
+            if ($primary) {
+                $product->photo = $this->saveImgBase64($primary, 'uploads');
+            }
         }
         $product->save();
         $product_id = $id;
-        $productCategory = ProductCategory::where('product_id', $product_id)->delete();
+        $productCategory = $this->prodCateRepo->deleteProductCategory($product_id);
     
         $productCategories['product_id'] = $id;
         $prodCate = $request->category_id;
         for ($i = 0; $i < count($prodCate); $i++) {
             $productCategories['category_id'] = $prodCate[$i];
-            $productCategory = ProductCategory::create($productCategories);
+            $productCategory = $this->prodCateRepo->create($productCategories);
         }
-        $productImage = ProductImage::where('product_id', $product_id)->get();
+        $productImage = $this->prodImageRepo->getProductImageById($product_id);
         $input['product_id'] = $id;
-        if ($request->hasFile('image')) {
-            foreach ($productImage as $reMoveImage) {
-                File::delete(storage_path('app/public/products/images/thumbnail/'. $reMoveImage->image));
-                File::delete(storage_path('app/public/products/images/medium/'. $reMoveImage->image));
-                File::delete(storage_path('app/public/products/images/large/'. $reMoveImage->image));
-            }
-            $images[] = $request->file('image');
-            foreach ($images[0] as $image) {
-                $filename = $image->getInode() . $image->getClientOriginalName();
-                $resize = Image::make($image->getRealPath());
-                $resize->fit(150, 150)->save(storage_path('app/public/products/images/thumbnail/'. $filename));
-                $resize->fit(400, 400)->save(storage_path('app/public/products/images/medium/'. $filename));
-                $resize->fit(600, 600)->save(storage_path('app/public/products/images/large/'. $filename));
-                $input['image'] = $filename;
-                ProductImage::create($input);
+        if ($request->get('other-image')) {
+            $images = $request->get('other-image');
+            foreach ($images as $image) {
+                $input['image'] =  $this->saveImgBase64($image, 'uploads/other-image');;
+                $this->prodImageRepo->create($input);
             }
         }
-        
-        return response()->json([
-            'product' => $product,
-            'productCategory' => $productCategory
-        ]);
-
-            
-        // return redirect()->route('products.index');
+        return redirect()->route('products.index');
     }
     /**
-     * Create destroy function to delete single product
+     * Create destroy function to delete single product, delete relationship table
      * 
      * @param int $id 
      * 
@@ -223,11 +200,14 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        // $this->productRepo->delete($id);
-        $productCategory = ProductCategory::where('product_id', $id)->delete();
-        $productImage = ProductImage::where('product_id', $id)->delete();
-        $product = Product::find($id)->delete();
-        return redirect()->route('products.index');
+        $product_id = $id;
+        $productCategory = $this->prodCateRepo->deleteProductCategory($product_id);
+
+        $productImage = $this->prodImageRepo->deleteProductImagebyProductId($product_id);
+
+        $product = $this->productRepo->deleteProduct($id);
+
+        return 'ok';
     }
     /**
      * Create delete function to delete single image from product image table
@@ -238,15 +218,11 @@ class ProductController extends Controller
      */
     public function deleteProductImage($id)
     {
-        $productImage = ProductImage::find($id);
-        File::delete(storage_path('app/public/products/images/thumbnail/'. $productImage->image));
-        File::delete(storage_path('app/public/products/images/medium/'. $productImage->image));
-        File::delete(storage_path('app/public/products/images/large/'. $productImage->image));
-        $productImage->delete();
-        return 'ok';
+        $productImage = $this->prodImageRepo->deleteProductImage($id);
+        return $productImage;
     }
     /**
-     * Create delete function to delete single image from product image table
+     * Create delete function to delete single photo from product table
      * 
      * @param int $id 
      * 
@@ -254,12 +230,37 @@ class ProductController extends Controller
      */
     public function deleteOnlyImage($id)
     {
-        // $product = Product::where('id', $id)->where('photo', 'like', '%dd%')->first();
-        $product = Product::where('id', $id)->where('photo', 'like', '%%')->first();
-        File::delete(storage_path('app/public/products/thumbnail/'. $product->photo));
-        File::delete(storage_path('app/public/products/thumbnail/'. $product->photo));
-        File::delete(storage_path('app/public/products/thumbnail/'. $product->photo));
-        $product->update(['photo' => null]);
-        return 'ok';
+        $product = $this->productRepo->deleteProductPhoto($id);
+        return $product;
+    }
+    /**
+     * SaveImageBase64
+     * 
+     * @param string $param 
+     * @param string $folder 
+     * 
+     * @return response
+     */
+    public function saveImgBase64($param, $folder)
+    {
+        list($extension, $content) = explode(';', $param);
+        $tmpExtension = explode('/', $extension);
+        preg_match('/.([0-9]+) /', microtime(), $m);
+        $fileName = sprintf('img%s%s.%s', date('YmdHis'), $m[1], $tmpExtension[1]);
+        $content = explode(',', $content)[1];
+        $storage = Storage::disk('public');
+
+        $checkDirectory = $storage->exists($folder);
+
+        if (!$checkDirectory) {
+            $storage->makeDirectory($folder);
+        }
+        $storage->put($folder . '/' . $fileName, base64_decode($content), 'public');
+
+        $resize = Image::make(Storage::path('/public/'.$folder.'/'. $fileName));
+        $resize->fit(150, 150)->save(storage_path('app/public/product_images/thumbnail/'. $fileName));
+        $resize->fit(400, 400)->save(storage_path('app/public/product_images/medium/'. $fileName));
+        $resize->fit(600, 600)->save(storage_path('app/public/product_images/large/'. $fileName));
+        return $fileName;
     }
 }
